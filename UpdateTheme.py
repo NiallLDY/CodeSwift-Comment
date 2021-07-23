@@ -80,7 +80,7 @@ class UpdateTheme:
       <!-- 评论功能 -->
       <div class="utterances">
         <script src="https://utteranc.es/client.js" 
-                repo="NiallLDY/CodeSwift-Comment" 
+                repo="XXXX" 
                 issue-term="pathname"
                 theme='github-light' 
                 crossorigin="anonymous" async>
@@ -149,9 +149,9 @@ class UpdateTheme:
       </p>
 '''
         new_string = '''      <p class="mb-0">
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2021010146号-1</a>
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备XXXX号-1</a>
         <!-- &nbsp;&nbsp;&nbsp;&nbsp; -->
-        <!-- <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2021010146号-1</a> -->
+        <!-- <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备XXXX号-1</a> -->
       </p>'''
         self.replace(file_path, old_string, new_string)
 
