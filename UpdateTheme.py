@@ -1,6 +1,6 @@
 import os
 
-# For Chirpy 4.1.0
+# For Chirpy 4.1.0+
 class UpdateTheme:
 
     def __init__(self):
