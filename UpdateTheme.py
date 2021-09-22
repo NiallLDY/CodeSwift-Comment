@@ -1,6 +1,5 @@
 import os
 
-# For Chirpy 4.1.0+
 class UpdateTheme:
 
     def __init__(self):
@@ -80,7 +79,7 @@ class UpdateTheme:
       <!-- 评论功能 -->
       <div class="utterances">
         <script src="https://utteranc.es/client.js" 
-                repo="XXXX" 
+                repo="NiallLDY/CodeSwift-Comment" 
                 issue-term="pathname"
                 theme='github-light' 
                 crossorigin="anonymous" async>
@@ -149,9 +148,9 @@ class UpdateTheme:
       </p>
 '''
         new_string = '''      <p class="mb-0">
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备XXXX号-1</a>
+        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2021010146号-1</a>
         <!-- &nbsp;&nbsp;&nbsp;&nbsp; -->
-        <!-- <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备XXXX号-1</a> -->
+        <!-- <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2021010146号-1</a> -->
       </p>'''
         self.replace(file_path, old_string, new_string)
 
@@ -184,7 +183,118 @@ class UpdateTheme:
         new_string = '''title: "404错误: 页面不存在"'''
         self.replace(file_path, old_string, new_string)
 
+    def add_featuredImage(self):
+        file_path = self.theme_path + '/_layouts/home.html'
+        
+        old_string = '''{% for post in posts %}
 
+  <div class="post-preview">
+    <h1>
+      <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+    </h1>
+
+    <div class="post-content">
+      <p>
+        {% include no-linenos.html content=post.content %}
+        {{ content | markdownify | strip_html | truncate: 200 }}
+      </p>
+    </div>
+
+    <div class="post-meta text-muted d-flex justify-content-between">
+
+      <div>
+        <!-- posted date -->
+        <i class="far fa-calendar fa-fw"></i>
+        {% include timeago.html date=post.date tooltip=true %}
+
+        <!-- time to read -->
+        <i class="far fa-clock fa-fw"></i>
+        {% include read-time.html content=post.content %}
+
+        <!-- page views -->
+        {% if site.google_analytics.pv.proxy_endpoint or site.google_analytics.pv.cache_path %}
+        <i class="far fa-eye fa-fw"></i>
+        <span id="pv_{{-post.title-}}" class="pageviews">
+          <i class="fas fa-spinner fa-spin fa-fw"></i>
+        </span>
+        {% endif %}
+      </div>
+
+      {% if post.pin %}
+      <div class="pin">
+        <i class="fas fa-thumbtack fa-fw"></i>
+        <span>{{ site.data.locales[lang].post.pin_prompt }}</span>
+      </div>
+      {% endif %}
+
+    </div> <!-- .post-meta -->
+
+  </div> <!-- .post-review -->
+
+{% endfor %}'''
+        new_string = '''{% for post in posts %}
+
+  <div class="my-post-preview">
+
+    <div class="my-image-div">
+      <a href="{{ post.url | relative_url }}">
+        {% if post.image.src %}
+              <img src="{{ post.image.src }}"
+                class="preview-img my-image"
+                alt="{{ post.image.alt | default: "Preview Image" }}"
+                src="{{ post.image.src }}"
+              >
+        {% endif %}
+      </a>
+    </div>
+
+    <div class="post-preview">
+                
+      <h1>
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </h1>
+
+      <div class="post-content">
+        <p>
+          {% include no-linenos.html content=post.content %}
+          {{ content | markdownify | strip_html | truncate: 200 }}
+        </p>
+      </div>
+
+      <div class="post-meta text-muted d-flex justify-content-between">
+
+        <div>
+          <!-- posted date -->
+          <i class="far fa-calendar fa-fw"></i>
+          {% include timeago.html date=post.date tooltip=true %}
+
+          <!-- time to read -->
+          <i class="far fa-clock fa-fw"></i>
+          {% include read-time.html content=post.content %}
+
+          <!-- page views -->
+          {% if site.google_analytics.pv.proxy_endpoint or site.google_analytics.pv.cache_path %}
+          <i class="far fa-eye fa-fw"></i>
+          <span id="pv_{{-post.title-}}" class="pageviews">
+            <i class="fas fa-spinner fa-spin fa-fw"></i>
+          </span>
+          {% endif %}
+        </div>
+
+        {% if post.pin %}
+        <div class="pin">
+          <i class="fas fa-thumbtack fa-fw"></i>
+          <span>{{ site.data.locales[lang].post.pin_prompt }}</span>
+        </div>
+        {% endif %}
+
+      </div> <!-- .post-meta -->
+        
+    </div>  <!-- .post-review -->
+  </div> 
+
+{% endfor %}'''
+        self.replace(file_path, old_string, new_string)
 
 if __name__ == "__main__":
     theme = UpdateTheme()
@@ -196,9 +306,11 @@ if __name__ == "__main__":
         choice = input()
     
     if choice == 'y' or choice == 'Y':
+        theme.add_featuredImage()
         theme.change_post()
         theme.change_modetoggle()
-        theme.change_footer()
+        # theme.change_footer()
         theme.change_404()
+
     else:
         pass
