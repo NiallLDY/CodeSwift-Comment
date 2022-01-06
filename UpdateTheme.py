@@ -70,112 +70,6 @@ class UpdateTheme:
             else:
                 print(file + "添加失败，未找到定位内容！")
 
-
-    def change_post(self):
-        file_path = self.theme_path + '/_layouts/post.html'
-
-        before = '''</div> <!-- #post-extend-wrapper -->'''
-        content = '''
-      <!-- 评论功能 -->
-      <div class="utterances">
-        <script src="https://utteranc.es/client.js" 
-                repo="NiallLDY/CodeSwift-Comment" 
-                issue-term="pathname"
-                theme='github-light' 
-                crossorigin="anonymous" async>
-        </script>
-        <script type="text/javascript">
-          $(function () {
-            window.onmessage = evt => {
-              if (evt.origin === 'https://utteranc.es') {
-                toggle.updateCommentStyle();
-                window.onmessage = null;
-              }
-            }
-          });
-        </script>
-      </div>
-      <!-- 评论功能 -->'''
-
-        self.insert(file_path, before, content)
-
-    def change_modetoggle(self):
-        file_path = self.theme_path + '/_includes/mode-toggle.html'
-
-        before = '''updateMermaid() {'''
-        content = '''updateCommentStyle() {
-      var theme = "github-light";
-      if (this.modeStatus === ModeToggle.DARK_MODE) {
-        theme = "photon-dark";
-      }
-      let comment = document.querySelector("iframe.utterances-frame");
-      if (comment == null) {
-        return;
-      }
-      comment.contentWindow.postMessage({
-        type: "set-theme",
-        theme: theme
-      },
-        "https://utteranc.es/");
-    }
-'''
-        self.insert(file_path, before, content)
-
-        before = '''this.updateMermaid();'''
-        content = '''
-        this.updateCommentStyle();
-'''
-        self.insert(file_path, before, content)
-
-
-    def change_footer(self):
-        file_path = self.theme_path + '/_includes/footer.html'
-        
-        old_string = '''      <p class="mb-0">
-        {% capture _platform %}
-          <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a>
-        {% endcapture %}
-
-        {% capture _theme %}
-          <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a>
-        {% endcapture %}
-
-        {{ site.data.locales[site.lang].meta
-          | default: 'Powered by :PLATFORM with :THEME theme.'
-          | replace: ':PLATFORM', _platform | replace: ':THEME', _theme
-        }}
-
-      </p>
-'''
-        new_string = '''      <p class="mb-0">
-        <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2021010146号-1</a>
-        <!-- &nbsp;&nbsp;&nbsp;&nbsp; -->
-        <!-- <a href="https://beian.miit.gov.cn/" target="_blank">苏ICP备2021010146号-1</a> -->
-      </p>'''
-        self.replace(file_path, old_string, new_string)
-
-        before = '''    </div>
-
-    <div class="footer-right">'''
-        content = '''      <p class="mb-0">
-        {% capture _platform %}
-          <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a>
-        {% endcapture %}
-
-        {% capture _theme %}
-          <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a>
-        {% endcapture %}
-
-        {{ site.data.locales[site.lang].meta
-          | default: 'Powered by :PLATFORM with :THEME theme.'
-          | replace: ':PLATFORM', _platform | replace: ':THEME', _theme
-        }}
-
-      </p>
-'''
-        self.insert(file_path, before, content)
-
-
     def change_404(self):
         file_path = self.theme_path + '/assets/404.html'
         
@@ -186,7 +80,9 @@ class UpdateTheme:
     def add_featuredImage(self):
         file_path = self.theme_path + '/_layouts/home.html'
         
-        old_string = '''{% for post in posts %}
+        old_string = '''<div id="post-list">
+
+{% for post in posts %}
 
   <div class="post-preview">
     <h1>
@@ -196,13 +92,13 @@ class UpdateTheme:
     <div class="post-content">
       <p>
         {% include no-linenos.html content=post.content %}
-        {{ content | markdownify | strip_html | truncate: 200 }}
+        {{ content | markdownify | strip_html | truncate: 200 | escape }}
       </p>
     </div>
 
-    <div class="post-meta text-muted d-flex justify-content-between">
+    <div class="post-meta text-muted d-flex">
 
-      <div>
+      <div class="mr-auto">
         <!-- posted date -->
         <i class="far fa-calendar fa-fw"></i>
         {% include timeago.html date=post.date tooltip=true %}
@@ -211,12 +107,15 @@ class UpdateTheme:
         <i class="far fa-clock fa-fw"></i>
         {% include read-time.html content=post.content %}
 
-        <!-- page views -->
-        {% if site.google_analytics.pv.proxy_endpoint or site.google_analytics.pv.cache_path %}
-        <i class="far fa-eye fa-fw"></i>
-        <span id="pv_{{-post.title-}}" class="pageviews">
-          <i class="fas fa-spinner fa-spin fa-fw"></i>
-        </span>
+        <!-- categories -->
+        {% if post.categories.size > 0 %}
+          <i class="far fa-folder-open fa-fw"></i>
+          <span>
+          {% for category in post.categories %}
+            {{ category }}
+            {%- unless forloop.last -%},{%- endunless -%}
+          {% endfor %}
+          </span>
         {% endif %}
       </div>
 
@@ -231,25 +130,29 @@ class UpdateTheme:
 
   </div> <!-- .post-review -->
 
-{% endfor %}'''
-        new_string = '''{% for post in posts %}
+{% endfor %}
 
-  <div class="my-post-preview">
+</div> <!-- #post-list -->'''
+        new_string = '''<div id="post-list">
 
-    <div class="my-image-div">
+{% for post in posts %}
+
+  <div class="post-preview-with-image">
+    
+    <div class="preview-image">
       <a href="{{ post.url | relative_url }}">
         {% if post.image.src %}
-              <img src="{{ post.image.src }}"
-                class="preview-img my-image"
-                alt="{{ post.image.alt | default: "Preview Image" }}"
-                src="{{ post.image.src }}"
-              >
+          {% capture bg %}
+            {% unless post.image.no_bg %}{{ 'bg' }}{% endunless %}
+          {% endcapture %}
+          <img data-src="{{ post.image.src }}" class="my-image"
+              alt="{{ post.image.alt | default: "Preview Image" }}"
+              src="{{ post.image.src }}">
         {% endif %}
       </a>
     </div>
+    <div class="post-preview-post-alone">
 
-    <div class="post-preview">
-                
       <h1>
         <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
       </h1>
@@ -257,13 +160,13 @@ class UpdateTheme:
       <div class="post-content">
         <p>
           {% include no-linenos.html content=post.content %}
-          {{ content | markdownify | strip_html | truncate: 200 }}
+          {{ content | markdownify | strip_html | truncate: 200 | escape }}
         </p>
       </div>
 
-      <div class="post-meta text-muted d-flex justify-content-between">
+      <div class="post-meta text-muted d-flex">
 
-        <div>
+        <div class="mr-auto">
           <!-- posted date -->
           <i class="far fa-calendar fa-fw"></i>
           {% include timeago.html date=post.date tooltip=true %}
@@ -272,12 +175,15 @@ class UpdateTheme:
           <i class="far fa-clock fa-fw"></i>
           {% include read-time.html content=post.content %}
 
-          <!-- page views -->
-          {% if site.google_analytics.pv.proxy_endpoint or site.google_analytics.pv.cache_path %}
-          <i class="far fa-eye fa-fw"></i>
-          <span id="pv_{{-post.title-}}" class="pageviews">
-            <i class="fas fa-spinner fa-spin fa-fw"></i>
-          </span>
+          <!-- categories -->
+          {% if post.categories.size > 0 %}
+            <i class="far fa-folder-open fa-fw"></i>
+            <span>
+            {% for category in post.categories %}
+              {{ category }}
+              {%- unless forloop.last -%},{%- endunless -%}
+            {% endfor %}
+            </span>
           {% endif %}
         </div>
 
@@ -289,11 +195,12 @@ class UpdateTheme:
         {% endif %}
 
       </div> <!-- .post-meta -->
-        
-    </div>  <!-- .post-review -->
-  </div> 
+    </div>
+  </div> <!-- .post-review -->
 
-{% endfor %}'''
+{% endfor %}
+
+</div> <!-- #post-list -->'''
         self.replace(file_path, old_string, new_string)
 
 if __name__ == "__main__":
@@ -307,9 +214,6 @@ if __name__ == "__main__":
     
     if choice == 'y' or choice == 'Y':
         theme.add_featuredImage()
-        theme.change_post()
-        theme.change_modetoggle()
-        # theme.change_footer()
         theme.change_404()
 
     else:
